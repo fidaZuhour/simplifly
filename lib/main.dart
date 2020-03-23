@@ -1,11 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:simplifly/screens/notification_screen.dart';
 import 'package:simplifly/screens/register.dart';
 import 'package:simplifly/screens/chat_screen.dart';
 import 'classes/introcls.dart';
 
-FirebaseUser loggedInUser;
 void main() => runApp(CarouselDemo());
 final Widget placeholder = Container(color: Colors.grey);
 final List<Intro> imgList = [
@@ -62,23 +61,10 @@ class CarouselWithIndicator extends StatefulWidget {
 
 class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
   int _current = 0;
-  final _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
     super.initState();
-    getCurrentUser();
-  }
-
-  void getCurrentUser() async {
-    try {
-      final user = await _auth.currentUser();
-      if (user != null) {
-        loggedInUser = user;
-      }
-    } catch (e) {
-      print(e);
-    }
   }
 
   @override
@@ -121,10 +107,6 @@ class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
 class CarouselDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    //Manually operated Carousel
-
-    //Auto playing carousel
-
     return MaterialApp(
         title: 'demo',
         home: Scaffold(
@@ -187,7 +169,13 @@ class CarouselDemo extends StatelessWidget {
                             minWidth: double.infinity,
                             child: RaisedButton(
                               color: Color.fromRGBO(59, 65, 74, 100),
-                              onPressed: null,
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            NotificationScreen()));
+                              },
                               child: Text(
                                 'Already have an account? Login',
                                 style: TextStyle(
