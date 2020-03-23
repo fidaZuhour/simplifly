@@ -1,17 +1,19 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
-
 final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-class NotificationScreen extends StatefulWidget {
-  @override
-  _NotificationScreenState createState() => _NotificationScreenState();
-}
 
-class _NotificationScreenState extends State<NotificationScreen> {
-
+class NotificationScreen {
+  final databaseReference = Firestore.instance;
   List<Message> messagesList;
-  _configureFirebaseListeners() {
+  List<String> tokens = List<String>();
+
+  void configureFirebaseListeners() {
+    String token = _getToken();
+    if (!isTokenExist(token)) {
+      addToken(token);
+    }
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         print('onMessage: $message');
@@ -19,15 +21,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
       },
       onLaunch: (Map<String, dynamic> message) async {
         print('onLaunch: $message');
-       _setMessage(message);
+        _setMessage(message);
       },
       onResume: (Map<String, dynamic> message) async {
         print('onResume: $message');
         _setMessage(message);
       },
-
     );
-
   }
 
   _setMessage(Map<String, dynamic> message) {
@@ -37,49 +37,39 @@ class _NotificationScreenState extends State<NotificationScreen> {
     final String body = notification['body'];
     String mMessage = data['message'];
     print("Title: $title, body: $body, message: $mMessage");
-    setState(() {
-      Message msg = Message(title, body, mMessage);
-      messagesList.add(msg);
-    });
-  }
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Notification Screen"),
-      ),
-      body: ListView.builder(
-        itemCount: null == messagesList ? 0 : messagesList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Card(
-            child: Padding(
-              padding: EdgeInsets.all(10.0),
-              child: Text(
-                messagesList[index].title,
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
+    Message msg = Message(title, body, mMessage);
+    messagesList.add(msg);
   }
 
-  _getToken() {
+  String _getToken() {
     _firebaseMessaging.getToken().then((token) {
       print("Device Token: $token");
+      return token;
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    messagesList =List<Message>();
-    _getToken();
-    _configureFirebaseListeners();
+  bool isTokenExist(String token) {
+    databaseReference
+        .collection("DeviceIDTokens")
+        .getDocuments()
+        .then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((snap) {
+        String tok = snap.data['device_token'].toString();
+        print("device_token $tok");
+        tokens.add(tok);
+      });
+    });
+    for (int i = 0; i < tokens.length; i++) {
+      if (token == tokens[i]) return true;
+    }
+
+    return false;
+  }
+
+  addToken(String token) {
+    databaseReference.collection("DeviceIDTokens").add({
+      'device_token': token,
+    });
   }
 }
 
@@ -87,6 +77,7 @@ class Message {
   String title;
   String body;
   String message = " ";
+
   Message(title, body, message) {
     this.title = title;
     this.body = body;

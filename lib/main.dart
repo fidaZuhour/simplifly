@@ -61,10 +61,11 @@ class CarouselWithIndicator extends StatefulWidget {
 
 class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
   int _current = 0;
-
+  NotificationScreen notificationScreen =NotificationScreen();
   @override
   void initState() {
     super.initState();
+    notificationScreen.configureFirebaseListeners();
   }
 
   @override
@@ -105,6 +106,7 @@ class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
 }
 
 class CarouselDemo extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -169,13 +171,7 @@ class CarouselDemo extends StatelessWidget {
                             minWidth: double.infinity,
                             child: RaisedButton(
                               color: Color.fromRGBO(59, 65, 74, 100),
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            NotificationScreen()));
-                              },
+                              onPressed: null,
                               child: Text(
                                 'Already have an account? Login',
                                 style: TextStyle(
