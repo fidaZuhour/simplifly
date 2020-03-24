@@ -8,9 +8,10 @@ class NotificationScreen {
   List<Message> messagesList;
   List<String> tokens = List<String>();
 
-  void configureFirebaseListeners() {
-    String token = _getToken();
-    if (!isTokenExist(token)) {
+  Future<String> configureFirebaseListeners() async {
+    String token = await _getToken();
+    bool isExist =await isTokenExist(token);
+    if (!isExist) {
       addToken(token);
     }
     _firebaseMessaging.configure(
@@ -27,6 +28,7 @@ class NotificationScreen {
         _setMessage(message);
       },
     );
+
   }
 
   _setMessage(Map<String, dynamic> message) {
@@ -40,35 +42,37 @@ class NotificationScreen {
     messagesList.add(msg);
   }
 
-  String _getToken() {
-    _firebaseMessaging.getToken().then((token) {
+  Future<String> _getToken() async {
+    String newToken;
+    await _firebaseMessaging.getToken().then((token) {
       print("Device Token: $token");
-      return token;
+      newToken = token;
     });
+    return newToken;
   }
 
-  bool isTokenExist(String token) {
-    databaseReference
+  Future<bool> isTokenExist(String token) async {
+    tokens.clear();
+   await databaseReference
         .collection("DeviceIDTokens")
         .getDocuments()
         .then((QuerySnapshot snapshot) {
-      snapshot.documents.forEach((snap) {
-        String tok = snap.data['device_token'].toString();
-        print("device_token $tok");
-        tokens.add(tok);
+          snapshot.documents.forEach((snap) {
+        tokens.add(snap.data['device_token']);
       });
     });
     for (int i = 0; i < tokens.length; i++) {
       if (token == tokens[i]) return true;
     }
-
     return false;
   }
 
   addToken(String token) {
+    if(token != null){
     databaseReference.collection("DeviceIDTokens").add({
       'device_token': token,
     });
+    }
   }
 }
 
