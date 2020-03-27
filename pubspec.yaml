@@ -25,10 +25,14 @@ dependencies:
   flutter_spinkit: ^4.1.1
   firebase_core: ^0.4.4+2
   intl: ^0.16.0
+  firebase_analytics: ^5.0.2
+  google_sign_in: ^3.2.4
   modal_progress_hud: ^0.1.3
   firebase_auth: ^0.15.5+2
   firebase_messaging: ^5.1.4
-  cloud_firestore:
+  cloud_firestore: 0.13.4+2
+  flutter_facebook_login:
+
   
 
 

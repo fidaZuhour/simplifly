@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:simplifly/screens/chat_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:simplifly/services/auth_service.dart';
 
 bool showSpinner = false;
+final databaseReference = Firestore.instance;
 
 class Register extends StatefulWidget {
   Register({Key key}) : super(key: key);
@@ -16,7 +18,8 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   final _auth = FirebaseAuth.instance;
-  final databaseReference = Firestore.instance;
+
+  Authentication authentication = Authentication();
 
   void _showDialog(title, txt) {
     // flutter defined function
@@ -101,7 +104,15 @@ class _RegisterState extends State<Register> {
                                     borderRadius:
                                         new BorderRadius.circular(18.0),
                                     side: BorderSide(color: Colors.red)),
-                                onPressed: () {},
+                                onPressed: () async {
+                                  FirebaseUser user =
+                                      await authentication.googleSignIn();
+                                  authentication.createUserRecord(user);
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ChatScreen()));
+                                },
                                 color: Colors.red,
                                 textColor: Colors.white,
                                 child: Text("Login using gmail".toUpperCase(),
@@ -119,7 +130,15 @@ class _RegisterState extends State<Register> {
                                     borderRadius:
                                         new BorderRadius.circular(18.0),
                                     side: BorderSide(color: Colors.blue)),
-                                onPressed: () {},
+                                onPressed: () async {
+                                  FirebaseUser user =
+                                      await authentication.facebookSignIn();
+                                  authentication.createUserRecord(user);
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ChatScreen()));
+                                },
                                 color: Colors.blue,
                                 textColor: Colors.white,
                                 child: Text(
